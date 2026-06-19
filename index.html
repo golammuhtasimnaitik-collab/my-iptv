@@ -1,56 +1,26 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live TV BD - Premium TV</title>
+    <title>Live TV BD</title>
     <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
-    <style>
-        body { background-color: #0b0b0f; color: #fff; margin: 0; font-family: 'Poppins', sans-serif; }
-        
-        /* হেডার ডিজাইন */
-        .header-bar { padding: 10px; text-align: center; background: #07070a; border-bottom: 1px solid #1a1a26; }
-        .logo-text { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: 2px; }
-
-        /* প্লেয়ার সেকশন */
-        .player-container { width: 100%; aspect-ratio: 16/9; background: #000; }
-        .video-js { width: 100% !important; height: 100% !important; }
-        
-        /* চ্যানেল বাটন সেকশন */
-        .channel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 15px; }
-        .grid-card { background: #14141f; padding: 10px; text-align: center; border-radius: 12px; cursor: pointer; border: 1px solid #222; transition: 0.3s; }
-        .grid-card:hover { border-color: #ff007f; }
-        .logo-img { width: 40px; height: 40px; border-radius: 50%; margin-bottom: 5px; }
-        .channel-name { font-size: 11px; font-weight: 600; color: #fff; }
-    </style>
 </head>
-<body>
+<body style="background:#000; margin:0; text-align:center;">
 
-    <div class="header-bar">
-        <div class="logo-text">LIVE TV BD</div>
-    </div>
+    <video id="my-video" class="video-js vjs-default-skin" controls preload="auto" width="100%" height="300" autoplay>
+        <source src="https://bdedatv.bdixsports.com/somoy/index.m3u8" type="application/x-mpegURL">
+    </video>
 
-    <div class="player-container">
-        <video id="my-video" class="video-js vjs-default-skin vjs-big-play-centered" controls autoplay></video>
-    </div>
-
-    <div class="channel-grid" id="grid-container">
-        <div class="grid-card" onclick="playChannel('https://bdedatv.bdixsports.com/somoy/index.m3u8', 'Somoy TV')">
-            <img src="https://i.ibb.co/6wXb7fS/somoy.png" class="logo-img" alt="Somoy">
-            <div class="channel-name">Somoy TV</div>
-        </div>
-        <div class="grid-card" onclick="playChannel('https://streaming.jamuna.tv/live/jamunatv/playlist.m3u8', 'Jamuna TV')">
-            <img src="https://i.ibb.co/gST9fWb/jamuna.png" class="logo-img" alt="Jamuna">
-            <div class="channel-name">Jamuna TV</div>
-        </div>
+    <div style="padding:20px;">
+        <button onclick="changeChannel('https://bdedatv.bdixsports.com/somoy/index.m3u8')" style="padding:10px 20px; font-size:18px;">Somoy TV</button>
+        <button onclick="changeChannel('https://bdedatv.bdixsports.com/tsports/index.m3u8')" style="padding:10px 20px; font-size:18px;">T Sports</button>
     </div>
 
     <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
     <script>
         var player = videojs('my-video');
-        
-        function playChannel(url, name) {
-            player.src({ src: url, type: 'application/x-mpegURL' });
+        function changeChannel(url) {
+            player.src({src: url, type: 'application/x-mpegURL'});
             player.play();
         }
     </script>
