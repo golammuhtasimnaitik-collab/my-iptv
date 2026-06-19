@@ -3,65 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auto-Update IPTV</title>
+    <title>Live TV BD - Premium TV</title>
     <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
     <style>
-        body { background: #0b0b0f; color: #fff; margin: 0; font-family: sans-serif; }
+        body { background-color: #0b0b0f; color: #fff; margin: 0; font-family: 'Poppins', sans-serif; }
+        
+        /* হেডার ডিজাইন */
+        .header-bar { padding: 10px; text-align: center; background: #07070a; border-bottom: 1px solid #1a1a26; }
+        .logo-text { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: 2px; }
+
+        /* প্লেয়ার সেকশন */
         .player-container { width: 100%; aspect-ratio: 16/9; background: #000; }
         .video-js { width: 100% !important; height: 100% !important; }
+        
+        /* চ্যানেল বাটন সেকশন */
         .channel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 15px; }
-        .grid-card { background: #14141f; padding: 15px; text-align: center; border-radius: 10px; cursor: pointer; border: 1px solid #222; }
+        .grid-card { background: #14141f; padding: 10px; text-align: center; border-radius: 12px; cursor: pointer; border: 1px solid #222; transition: 0.3s; }
         .grid-card:hover { border-color: #ff007f; }
+        .logo-img { width: 40px; height: 40px; border-radius: 50%; margin-bottom: 5px; }
+        .channel-name { font-size: 11px; font-weight: 600; color: #fff; }
     </style>
 </head>
 <body>
+
+    <div class="header-bar">
+        <div class="logo-text">LIVE TV BD</div>
+    </div>
 
     <div class="player-container">
         <video id="my-video" class="video-js vjs-default-skin vjs-big-play-centered" controls autoplay></video>
     </div>
 
     <div class="channel-grid" id="grid-container">
-        <p style="text-align:center; width:100%;">চ্যানেল লোড হচ্ছে...</p>
+        <div class="grid-card" onclick="playChannel('https://bdedatv.bdixsports.com/somoy/index.m3u8', 'Somoy TV')">
+            <img src="https://i.ibb.co/6wXb7fS/somoy.png" class="logo-img" alt="Somoy">
+            <div class="channel-name">Somoy TV</div>
+        </div>
+        <div class="grid-card" onclick="playChannel('https://streaming.jamuna.tv/live/jamunatv/playlist.m3u8', 'Jamuna TV')">
+            <img src="https://i.ibb.co/gST9fWb/jamuna.png" class="logo-img" alt="Jamuna">
+            <div class="channel-name">Jamuna TV</div>
+        </div>
     </div>
 
     <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
     <script>
         var player = videojs('my-video');
-        // CORS এর সমস্যার সমাধানে proxy ব্যবহার করা হয়েছে
-        const playlistUrl = 'https://corsproxy.io/?https://raw.githubusercontent.com/sanjoykb/-KB-TV-Playlist/refs/heads/main/Github%20Auto%20Update%20Channel.m3u';
-
-        async function fetchChannels() {
-            try {
-                const response = await fetch(playlistUrl);
-                const data = await response.text();
-                parseM3U(data);
-            } catch (error) {
-                document.getElementById('grid-container').innerHTML = "<p>চ্যানেল লোড করা সম্ভব হয়নি।</p>";
-            }
+        
+        function playChannel(url, name) {
+            player.src({ src: url, type: 'application/x-mpegURL' });
+            player.play();
         }
-
-        function parseM3U(data) {
-            const lines = data.split('\n');
-            const grid = document.getElementById('grid-container');
-            grid.innerHTML = ''; 
-            
-            for (let i = 0; i < lines.length; i++) {
-                if (lines[i].startsWith('#EXTINF')) {
-                    const name = lines[i].split(',')[1];
-                    const url = lines[i+1];
-                    
-                    const card = document.createElement('div');
-                    card.className = 'grid-card';
-                    card.innerHTML = `<div>📺</div><div style="font-size:12px; margin-top:5px;">${name}</div>`;
-                    card.onclick = () => {
-                        player.src({ src: url, type: 'application/x-mpegURL' });
-                        player.play();
-                    };
-                    grid.appendChild(card);
-                }
-            }
-        }
-        fetchChannels();
     </script>
 </body>
 </html>
