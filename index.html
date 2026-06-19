@@ -3,37 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live TV BD - Premium IPTV</title>
+    <title>Live TV BD - Premium TV</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&family=Hind+Siliguri:wght@400;600&display=swap" rel="stylesheet">
     <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
     <style>
-        /* মেইন রুট থিম */
+        /* গ্লোবাল থিম এবং ডার্ক ওটিটি ব্যাকগ্রাউন্ড */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', 'Hind Siliguri', sans-serif; }
-        body { background-color: #08080c; color: #ffffff; display: flex; height: 100vh; overflow: hidden; }
+        body { background-color: #0d0d12; color: #ffffff; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
         
-        /* বাম পাশের ওটিটি সাইডবার */
-        .sidebar { width: 340px; background: linear-gradient(145deg, #101016, #161622); display: flex; flex-direction: column; border-right: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 5px 0 25px rgba(0,0,0,0.5); }
-        
-        /* অ্যানিমেটেড লোগো সেকশন */
-        .sidebar-header { padding: 25px 20px; background-color: rgba(0, 0, 0, 0.2); border-bottom: 1px solid rgba(255, 255, 255, 0.05); text-align: center; }
-        
-        .animated-logo { font-size: 26px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; background: linear-gradient(45deg, #00f2fe, #4facfe, #00f2fe); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: shine 3s linear infinite, pulse 2s infinite alternate; text-shadow: 0 0 20px rgba(79, 172, 254, 0.3); }
-
+        /* উপরের গ্লোয়িং লোগো এরিয়া */
+        .header-bar { padding: 15px; text-align: center; background: #08080c; border-bottom: 1px solid rgba(255, 255, 255, 0.03); }
+        .animated-logo { font-size: 22px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; background: linear-gradient(45deg, #ff007f, #7928ca, #ff007f); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: shine 3s linear infinite; text-shadow: 0 0 15px rgba(121, 40, 202, 0.3); }
         @keyframes shine { to { background-position: 200% center; } }
-        @keyframes pulse { 0% { transform: scale(1); } 100% { transform: scale(1.02); } }
 
-        .channel-list { flex: 1; overflow-y: auto; padding: 20px 15px; }
-        .channel-list::-webkit-scrollbar { width: 5px; }
-        .channel-list::-webkit-scrollbar-thumb { background: #252538; border-radius: 10px; }
+        /* ওটিটি ভিডিও প্লেয়ার কন্টেইনার */
+        .player-container { width: 100%; background: #000; position: relative; aspect-ratio: 16/9; max-height: 40vh; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .video-js { width: 100% !important; height: 100% !important; }
+        .vjs-big-play-centered .vjs-big-play-button { background: linear-gradient(45deg, #ff007f, #7928ca) !important; border: none !important; width: 60px !important; height: 60px !important; line-height: 60px !important; border-radius: 50% !important; }
+
+        /* ইনফো স্ট্রিপ */
+        .info-strip { background: #12121a; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .info-strip h2 { font-size: 16px; font-weight: 600; color: #fff; }
+        .live-badge { background: rgba(255, 0, 127, 0.1); border: 1px solid rgba(255, 0, 127, 0.2); color: #ff007f; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; display: flex; align-items: center; gap: 5px; }
+        .badge-dot { width: 6px; height: 6px; background-color: #ff007f; border-radius: 50%; animation: blink 1.5s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+        /* ক্যাটাগরি সিলেকশন নেভিগেশন বার */
+        .category-nav { display: flex; overflow-x: auto; white-space: nowrap; padding: 15px 10px; background: #0d0d12; gap: 10px; scrollbar-width: none; }
+        .category-nav::-webkit-scrollbar { display: none; }
+        .cat-tab { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); color: #a0a0ab; padding: 8px 18px; border-radius: 25px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s ease; }
+        .cat-tab:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+        .cat-tab.active { background: #ffffff; color: #000000; font-weight: 600; border-color: #ffffff; box-shadow: 0 4px 12px rgba(255,255,255,0.15); }
+
+        /* চ্যানেল গ্রিড ভিউ */
+        .content-section { flex: 1; padding: 10px 15px 30px 15px; background: #0d0d12; }
+        .channel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
         
-        /* ক্যাটাগরি ডিজাইন */
-        .category-title { font-size: 12px; text-transform: uppercase; color: #65657b; margin: 20px 0 10px 5px; font-weight: 700; letter-spacing: 2px; }
+        /* ইন্ডিভিজুয়াল চ্যানেল কার্ড */
+        .grid-card { background: #161622; border: 1px solid rgba(255, 255, 255, 0.03); border-radius: 16px; padding: 15px 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); min-height: 110px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .grid-card:hover { transform: translateY(-3px); border-color: #ff007f; background: rgba(255, 0, 127, 0.03); }
+        .grid-card.active { border-color: #ff007f; background: linear-gradient(145deg, #1f1124, #161622); box-shadow: 0 8px 20px rgba(255, 0, 127, 0.15); }
+
+        /* চ্যানেল লোগো বাবল */
+        .logo-bubble { width: 50px; height: 50px; background: rgba(255, 255, 255, 0.03); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 10px; border: 1px solid rgba(255, 255, 255, 0.05); color: #fff; transition: all 0.2s ease; }
+        .grid-card:hover .logo-bubble { background: #ff007f; color: #fff; border-color: transparent; }
+        .grid-card.active .logo-bubble { background: #ff007f; color: #fff; border-color: transparent; box-shadow: 0 0 12px rgba(255, 0, 127, 0.4); }
         
-        /* মডার্ন চ্যানেল বাটন */
-        .channel-btn { width: 100%; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); color: #bcbcbc; padding: 14px 18px; text-align: left; border-radius: 12px; cursor: pointer; margin-bottom: 10px; font-size: 15px; font-weight: 500; display: flex; align-items: center; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .channel-btn:hover { background: rgba(79, 172, 254, 0.08); border-color: #4facfe; color: #fff; padding-left: 24px; box-shadow: 0 5px 15px rgba(79, 172, 254, 0.1); }
-        .channel-btn.active { background: linear-gradient(45deg, #00f2fe, #4facfe); color: #000000; font-weight: 700; border-color: transparent; box-shadow: 0 8px 20px rgba(0, 242, 254, 0.3); }
-        .channel-icon { margin-right: 12px; font-size: 18px; }
+        .channel-name { font-size: 12px; font-weight: 500; color: #e2e2e9; line-height: 1.3; }
+        .channel-tag { font-size: 9px; color: #65657b; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+    </style>
+</head>
+<body>
+
+    <div class="header-bar">
+        <div class="animated-logo">Live TV BD</div>
+    </div>
+
+    <div class="player-container">
+        <video id="my-video" class="video-js vjs-default-skin vjs-big-play-centered" controls autoplay preload="auto">
+            <p class="vjs-no-js">HTML5 Video not supported by your browser.</p>
+        </video>
+    </div>
+
+    <div class="info-strip">
+        <h2 id="current-channel-title">Somoy TV</h2>
+        <div class="live-badge">
+            <div class="badge-dot"></div> Live
+        </div>
+    </div>
+
+    <div class="category-nav">
+        <div class="cat-tab active" onclick="filterCategory('all', this)">All Channels</div>
+        <div class="cat-tab" onclick="filterCategory('news', this)">News</div>
+        <div class="cat-tab" onclick="filterCategory('sports', this)">Sports</div>
+        <div class="cat-tab" onclick="filterCategory('entertainment', this)">Entertainment</div>
+    </div>
+
+    <div class="content-section">
+        <div class="channel-grid" id="grid-container">
+            
+            <div class="grid-card active" data-category="news" onclick="playChannel('http://172.16.172.114:8083/SomoyTv/tracks-v1a1/mono.m3u8?token=6d4b47cf6c9aebf2cc831e28bfa992d2a88e8dda-0ced35771400c88d016da67d903f93b6-1781868359-1781857559', 'Somoy TV', this)">
+                <div class="logo-bubble">📺</div>
+                <div class="channel-name">Somoy TV</div>
+                <div class="channel-tag">News</div>
+            </div>
+            <div class="grid-card" data-category="news" onclick="playChannel('http://172.16.172.114:8083/JamunaTV/index.m3u8?token=4324ec9ccc84c58abba050a4419a966a39dd2efe-fafcd02dd6bc589adab8b76a6689133d-1781868523-1781857723', 'Jamuna TV', this)">
+                <div class="logo-bubble">📺</div>
+                <div class="channel-name">Jamuna TV</div>
+                <div class="channel-tag">News</div>
+            </div>
+
+            <div class="grid-card" data-category="sports" onclick="playChannel('http://172.16.172.114:8083/TSportsHD/tracks-v1a1/mono.m3u8?token=9d99b204511ff63797874e547d255e32223b1db9-4a79205979fa98a753c82c880aad5c9f-1781868860-1781858060', 'T Sports HD', this)">
+                <div class="logo-bubble">⚽</div>
+                <div class="channel-name">T Sports HD</div>
+                <div class="channel-tag">Sports</div>
+            </div>
+            <div class="grid-card" data-category="sports" onclick="playChannel('http://172.16.172.114:8083/Feedget/beinspots_2/tracks-v1a1/mono.m3u8?token=92ef97d7c6c07a42ca6b6907f2b10f33fa84f4bd-6312e134c17c5f184bd15c361b880674-1781868975-1781858175', 'beIN Sports 2', this)">
+                <div class="logo-bubble">⚽</div>
+                <div class="channel-name">beIN Sports 2</div>
+                <div class="channel-tag">Sports</div>
+            </div>
+            <div class="grid-card" data-category="sports" onclick="playChannel('http://172.16.172.114:8083/Feedget/EurosportHD_17/tracks-v1a1/mono.m3u8?token=ab6c8aff234947d8df1b632469f0b7c8246bae97-506a56f6acad9cde48c5c0ec21f217b6-1781868936-1781858136', 'Eurosport HD', this)">
+                <div class="logo-bubble">🏆</div>
+                <div class="channel-name">Eurosport HD</div>
+                <div class="channel-tag">Sports</div>
+            </div>
+
+            <div class="grid-card" data-category="entertainment" onclick="playChannel('http://172.16.172.114:8083/STAR-JALSHA/index.m3u8?token=81eff70104e913de89d016a4604ba97623080d5a-74f5ab9976c00a0c46bbe328a040ba6d-1781868772-1781857972', 'Star Jalsha', this)">
+                <div class="logo-bubble">🎬</div>
+                <div class="channel-name">Star Jalsha</div>
+                <div class="channel-tag">Ent</div>
+            </div>
+            <div class="grid-card" data-category="entertainment" onclick="playChannel('http://172.16.172.114:8083/NTV/tracks-v1a1/mono.m3u8?token=058fe033fd89f46088af8dea6e4562457b097a44-96d4cb8427d963d0a1daca0d7430c07f-1781868705-1781857905', 'NTV', this)">
+                <div class="logo-bubble">🎬</div>
+                <div class="channel-name">NTV</div>
+                <div class="channel-tag">Ent</div>
+            </div>
+            <div class="grid-card" data-category="entertainment" onclick="playChannel('http://172.16.172.114:8083/Maasranga/index.m3u8?token=9fdb8ea5fc4afce4692b81897731cbddafc2b8c2-3f0a936381888770ad83104b20cdef4c-1781868545-1781857745', 'Maasranga TV', this)">
+                <div class="logo-bubble">🎬</div>
+                <div class="channel-name">Maasranga TV</div>
+                <div class="channel-tag">Ent</div>
+            </div>
+            <div class="grid-card" data-category="entertainment" onclick="playChannel('http://172.16.172.114:8083/BanglaVision/tracks-v1a1/mono.m3u8?token=660607dc7cde1201cbdfeab22e74c6edd42e4cc2-4032faab18169929193556f4527d5b97-1781868461-1781857661', 'Bangla Vision', this)">
+                <div class="logo-bubble">🎬</div>
+                <div class="channel-name">Bangla Vision</div>
+                <div class="channel-tag">Ent</div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
+    <script>
+        var player = videojs('my-video');
+        
+        // ডিফল্ট প্রথম চ্যানেল অটো লোড (Somoy TV)
+        player.src({
+            src: 'http://172.16.172.114:8083/SomoyTv/tracks-v1a1/mono.m3u8?token=6d4b47cf6c9aebf2cc831e28bfa992d2a88e8dda-0ced35771400c88d016da67d903f93b6-1781868359-1781857559',
+            type: 'application/x-mpegURL'
+        });
+
+        // চ্যানেল প্লে করার ফাংশন
+        function playChannel(url, name, cardElement) {
+            player.src({
+                src: url,
+                type: 'application/x-mpegURL'
+            });
+            player.play();
+
+            document.getElementById('current-channel-title').innerText = name;
+
+            // একটিভ ক্লাসের ভিজ্যুয়াল স্টেট পরিবর্তন
+            var cards = document.getElementsByClassName('grid-card');
+            for (var i = 0; i < cards.length; i++) {
+                cards[i].classList.remove('active');
+            }
+            cardElement.classList.add('active');
+            
+            // ক্লিক করার পর স্মুথ স্ক্রল করে প্লেয়ারে নিয়ে যাবে
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ক্যাটাগরি ফিল্টারিং ফিল্টার ফাংশন
+        function filterCategory(category, tabElement) {
+            // ট্যাব একটিভ চেঞ্জ
+            var tabs = document.getElementsByClassName('cat-tab');
+            for (var i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('active');
+            }
+            tabElement.classList.add('active');
+
+            // কার্ড ফিল্টার শো/হাইড
+            var cards = document.getElementsByClassName('grid-card');
+            for (var i = 0; i < cards.length; i++) {
+                var cardCat = cards[i].getAttribute('data-category');
+                if (category === 'all' || cardCat === category) {
+                    cards[i].style.display = 'flex';
+                } else {
+                    cards[i].style.display = 'none';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
 
         /* ডান পাশের প্রিমিয়াম প্লেয়ার এরিয়া */
         .main-content { flex: 1; display: flex; flex-direction: column; background: radial-gradient(circle at top right, #141420, #08080c); padding: 30px; justify-content: center; align-items: center; }
